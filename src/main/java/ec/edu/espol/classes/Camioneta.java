@@ -17,6 +17,4 @@ public class Camioneta extends Auto {
     public void setTraccion(String traccion) {
         this.traccion = traccion;
     }
-    
-    
 }

@@ -17,4 +17,12 @@ public class Comprador extends Persona{
         super(nombres, apellidos, organizacion, correo, clave);
         this.ofertas = ofertas;
     }
+
+    public ArrayList<Oferta> getOfertas() {
+        return ofertas;
+    }
+
+    public void setOfertas(ArrayList<Oferta> ofertas) {
+        this.ofertas = ofertas;
+    }
 }

@@ -28,6 +28,4 @@ public class Auto extends Vehiculo {
     public void setTransmision(String transmision) {
         this.transmision = transmision;
     }
-    
-    
 }
