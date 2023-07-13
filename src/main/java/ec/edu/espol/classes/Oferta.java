@@ -1,13 +1,16 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package ec.edu.espol.classes;
 
-/**
- *
- * @author crisj
- */
+
 public class Oferta {
+    private Vehiculo tipoVehiculo;
+    private Comprador comprador;
+    private double precio;
+
+    public Oferta(Vehiculo tipoVehiculo, Comprador comprador, double precio) {
+        this.tipoVehiculo = tipoVehiculo;
+        this.comprador = comprador;
+        this.precio = precio;
+    }
     
 }
