@@ -12,14 +12,14 @@ public abstract class Persona {
     protected String nombres;
     protected String apellidos;
     protected String organizacion;
-    protected String correo;
+    protected String correo_electronico;
     protected String clave;
 
     public Persona(String nombres, String apellidos, String organizacion, String correo, String clave) {
         this.nombres = nombres;
         this.apellidos = apellidos;
         this.organizacion = organizacion;
-        this.correo = correo;
+        this.correo_electronico = correo;
         this.clave = clave;
     }
 
@@ -48,11 +48,11 @@ public abstract class Persona {
     }
 
     public String getCorreo() {
-        return correo;
+        return correo_electronico;
     }
 
     public void setCorreo(String correo) {
-        this.correo = correo;
+        this.correo_electronico = correo;
     }
 
     public String getClave() {
