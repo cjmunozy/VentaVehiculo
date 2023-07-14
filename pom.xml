@@ -11,5 +11,12 @@
         <maven.compiler.target>20</maven.compiler.target>
         <exec.mainClass>ec.edu.espol.proyectoparcial.ProyectoParcial</exec.mainClass>
     </properties>
-    <name>VentaVehiculo</name>
+    <name>VentaVehiculo</name>  
+    <dependencies>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
+    </dependencies>
 </project>
