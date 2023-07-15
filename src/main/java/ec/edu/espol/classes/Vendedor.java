@@ -26,7 +26,7 @@ public class Vendedor extends Persona{
     public void saveFile(String nomFile){
         try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile), true)))
         {
-           pw.println(this.nombres+"|"+this.apellidos+"|"+this.organizacion+"|"+this.correo_electronico+"|"+Utilitaria.claveHash(this.clave)); 
+           pw.println(this.nombres+"|"+this.apellidos+"|"+this.organizacion+"|"+this.correo_electronico+"|"+this.clave); 
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -38,7 +38,7 @@ public class Vendedor extends Persona{
         try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile))))
         {
             for (Persona v: vendedores)
-                pw.println(v.nombres+"|"+v.apellidos+"|"+v.organizacion+"|"+v.correo_electronico+"|"+Utilitaria.claveHash(v.clave)); 
+                pw.println(v.nombres+"|"+v.apellidos+"|"+v.organizacion+"|"+v.correo_electronico+"|"+v.clave); 
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -86,32 +86,90 @@ public class Vendedor extends Persona{
             }
         }
         
-        System.out.println("Ingrese la clave: ");
+        System.out.println("Ingrese la clave:");
         String claveU = sc.nextLine();
         
         Vendedor pNuevo = new Vendedor(nombresU, apellidosU, organizacionU, correo, Utilitaria.claveHash(claveU));
         pNuevo.saveFile("vendedores.txt");
     }
     
-
+    public static void ingresarNuevoVehiculo(){
+        ArrayList<Vehiculo> vehiculos = Vehiculo.readFile("motocicletas.txt");
+        ArrayList<Auto> autos = Auto.readFileA("autos.txt");
+        ArrayList<Camioneta> camionetas = Camioneta.readFileC("camionetas.txt");
+        
+        if (Vendedor.comprobarCyC()){
+            Scanner sc = new Scanner(System.in);
+            System.out.println("\n--- TIPO DE VEHICULOS DISPONIBLES PARA REGISTRAR ---");
+            System.out.println("1. Motocicleta");
+            System.out.println("2. Auto");
+            System.out.println("3. Camioneta");
+            System.out.println("Ingrese el número del tipo de vehículo que desea registrar: ");
+            int numT = sc.nextInt();
+            switch(numT){
+                case 1:
+                    Vehiculo moto = Vehiculo.pedirDatosVehiculo();
+                    for (Vehiculo v: vehiculos){
+                        if (moto.placa.equals(v.placa)){
+                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
+                            return;
+                        }
+                    }
+                    moto.saveFile("motocicletas.txt");
+                    break;
+                case 2:
+                    Auto auto = Auto.pedirDatosAuto();
+                    for (Auto a: autos){
+                        if (auto.placa.equals(a.placa)){
+                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
+                            return;
+                        }
+                    }
+                    auto.saveFileA("autos.txt");
+                    break;
+                case 3:
+                    Camioneta camioneta = Camioneta.pedirDatosCamioneta();
+                    for (Camioneta c: camionetas){
+                        if (camioneta.placa.equals(c.placa)){
+                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
+                            return;
+                        }
+                    }
+                    camioneta.saveFileC("camionetas.txt");
+                    break;
+            }
+            
+        }
+    } 
     
+
     @Override
     public String toString(){
         return "Nombres:"+this.nombres+", Apellidos: "+this.apellidos+", Organización: "+this.organizacion+", Correo: "+this.correo_electronico+", Clave: "+this.clave;
     }
+//    
     
-    @Override
-    public boolean equals(Object o){
-        if (o == null)
-            return false;
-        if (this == o)
-            return true;
-        if (this.getClass() != o.getClass())
-            return false;
-        Vendedor other = (Vendedor) o;
-        return this.correo_electronico.equals(other.correo_electronico);
+    public static boolean comprobarCyC(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("POR FAVOR, COMPROBEMOS SUS DATOS");
+        System.out.println("Ingrese su correo electronico: ");
+        String correoE = sc.nextLine();
+        System.out.println("Ingrese su contraseña:");
+        String contraseñaE = sc.nextLine();
+        
+        ArrayList<Persona> usuarios = Vendedor.readFile("vendedores.txt");
+        for (Persona p: usuarios){
+            if (correoE.equals(p.correo_electronico) && Utilitaria.claveHash(contraseñaE).equals(p.clave)){
+                System.out.println("Correo y clave validada");
+                return true;
+            }
+            
+            else
+                System.out.println("Correo o clave incorrectos");
+        }
+        
+        return false;
     }
     
-
 
 }

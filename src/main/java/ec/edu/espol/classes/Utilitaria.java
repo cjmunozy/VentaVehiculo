@@ -77,6 +77,9 @@ public class Utilitaria {
             case 1:
                 Vendedor.registrarVendedor();
                 break;
+            case 2:
+                Vendedor.ingresarNuevoVehiculo();
+                break;
             case 4:
                 MenuOpciones();
 
