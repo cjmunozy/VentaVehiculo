@@ -80,12 +80,14 @@ public class Utilitaria {
             case 2:
                 Vendedor.ingresarNuevoVehiculo();
                 break;
+            case 3:
+                Vendedor.revisarOfertas();
             case 4:
                 MenuOpciones();
+            default:
+                System.out.println("Opción no encontrada./nIngrese nuevamente su opción");
 
         }
-        
-        
     }
     
     public void OpcionesComprador(){
@@ -96,6 +98,11 @@ public class Utilitaria {
         int numEleccion = sc.nextInt();
         switch(numEleccion){
             case 1:
+                Comprador.registrarComprador();
+                break;
+            case 2:
+                Comprador.ofertarPorVehiculo();
+                
         }
     }
 }

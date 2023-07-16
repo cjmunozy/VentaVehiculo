@@ -73,6 +73,5 @@ public class Camioneta extends Auto {
         System.out.println("Ingrese la traccion: ");
         String traccionU = sc.nextLine();
         return new Camioneta(a.placa, a.marca, a.modelo, a.tipoMotor, a.año, a.recorrido, a.color, a.tipoCombustible, a.precio, a.getVidrios(), a.getTransmision(), traccionU);
-    }
-    
+    }  
 }

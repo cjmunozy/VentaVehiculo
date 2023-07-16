@@ -87,6 +87,4 @@ public class Auto extends Vehiculo {
         String transmisionU = sc.nextLine();
         return new Auto(v.placa, v.marca, v.modelo, v.tipoMotor, v.año, v.recorrido, v.color, v.tipoCombustible, v.precio, vidriosU, transmisionU);
     }
-    
-    
 }

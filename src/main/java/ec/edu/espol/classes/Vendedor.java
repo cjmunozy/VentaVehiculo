@@ -1,9 +1,7 @@
 
 package ec.edu.espol.classes;
-import ec.edu.espol.classes.Vehiculo;
-import ec.edu.espol.classes.Utilitaria;
-import ec.edu.espol.classes.Persona;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -62,9 +60,6 @@ public class Vendedor extends Persona{
         
         return vendedores;
     }
-    
-    Scanner sc = new Scanner(System.in);
-
     
     public static void registrarVendedor(){
         ArrayList<Persona> usuarios = Vendedor.readFile("vendedores.txt");
@@ -170,6 +165,48 @@ public class Vendedor extends Persona{
         
         return false;
     }
+    public Vehiculo buscarVehiculoPorPlaca(String placa, ArrayList<Vehiculo> vehiculos) {
+    for (Vehiculo vehiculo : vehiculos) {
+        if (vehiculo.getPlaca().equals(placa)) {
+            return vehiculo;
+        }
+    }
+    return null;
+}
+    public static void revisarOfertas() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Ingrese la placa del vehículo: ");
+        String placa = scanner.nextLine();
+        ArrayList<Vehiculo> vehiculos = obtenerListaVehiculos();
+        for (Vehiculo v : vehiculos) {
+            if (v.placa.equals(placa)) 
+                v.mostrarOferta(v);
+        }
+    }
+    public static void enviarCorreo(String destinatario, String asunto, String cuerpo) { 
+        
+    }
     
+    
+    public static void aceptarOferta(Oferta oferta) {
+        Vehiculo vehiculo = oferta.getTipoVehiculo();
+        Comprador comprador = oferta.getComprador();
+        vehiculo.eliminarVehiculo(vehiculo);
+        enviarCorreo(comprador.getCorreo(), "Oferta Aceptada","");
+}
+    static ArrayList<Vehiculo> obtenerListaVehiculos() {
+    ArrayList<Vehiculo> vehiculos = new ArrayList<>();
+    try (Scanner scanner = new Scanner(new File("vehiculos.txt"))) {
+        while (scanner.hasNextLine()) {
+            String linea = scanner.nextLine();
+            String[] tokens = linea.split("\\|");
+            Vehiculo vehiculo = new Vehiculo(tokens[0], tokens[1], tokens[2], tokens[3], Integer.parseInt(tokens[4]), Double.parseDouble(tokens[5]), tokens[6], tokens[7], Double.parseDouble(tokens[8]));
+            vehiculos.add(vehiculo);
+        }
+    } catch (FileNotFoundException e) {
+        System.out.println("Error al leer el archivo de vehículos: " + e.getMessage());
+    }
 
+    return vehiculos;
+}
 }
