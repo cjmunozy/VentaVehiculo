@@ -9,7 +9,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>20</maven.compiler.source>
         <maven.compiler.target>20</maven.compiler.target>
-        <exec.mainClass>ec.edu.espol.proyectoparcial.ProyectoParcial</exec.mainClass>
+        <exec.mainClass>ec.edu.espol.ventavehiculo.VentaVehiculo</exec.mainClass>
     </properties>
     <name>VentaVehiculo</name>  
     <dependencies>

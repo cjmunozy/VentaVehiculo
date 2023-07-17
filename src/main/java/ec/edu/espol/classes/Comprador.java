@@ -4,21 +4,25 @@ package ec.edu.espol.classes;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 
 public class Comprador extends Persona{
     private ArrayList<Oferta> ofertas;
 
-    public Comprador(String nombres, String apellidos, String organizacion, String correo, String clave, ArrayList<Oferta> ofertas) {
-        super(nombres, apellidos, organizacion, correo, clave);
-        this.ofertas = ofertas;
+    public Comprador(String nombres, String apellidos, String organizacion, String correo, String clave) {
+        super(nombres, apellidos, organizacion, correo, clave, TipoPersona.COMPRADOR);
+        this.ofertas = new ArrayList<>();
     }
 
-    public Comprador(String nombres, String apellidos, String organizacion, String correo_electronico, String clave) {
-        super(nombres, apellidos, organizacion, correo_electronico, clave);
+    public Comprador(String nombres, String correo) {
+        super(nombres, correo);
+        this.ofertas = new ArrayList<>();
     }
+
     public ArrayList<Oferta> getOfertas() {
         return ofertas;
     }
@@ -26,53 +30,12 @@ public class Comprador extends Persona{
     public void setOfertas(ArrayList<Oferta> ofertas) {
         this.ofertas = ofertas;
     }
-    
-    public void saveFile(String nomFile){
-        try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile), true)))
-        {
-           pw.println(this.nombres+"|"+this.apellidos+"|"+this.organizacion+"|"+this.correo_electronico+"|"+this.clave); 
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-    
 
-    public static void saveFile(ArrayList<Persona> compradores, String nomFile){
-        try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile))))
-        {
-            for (Persona v: compradores)
-                pw.println(v.nombres+"|"+v.apellidos+"|"+v.organizacion+"|"+v.correo_electronico+"|"+v.clave); 
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-    
-    public static ArrayList<Persona> readFile(String nomFile){
-        ArrayList<Persona> compradores = new ArrayList<>();
-        try(Scanner sc = new Scanner(new File(nomFile)))
-        {
-            while(sc.hasNextLine()){
-                String linea = sc.nextLine();
-                String[] tokens = linea.split("\\|");
-                Comprador c = new Comprador(tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
-                compradores.add(c);
-            }
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-        
-        return compradores;
-    }
-    
     Scanner sc = new Scanner(System.in);
 
     
-    public static void registrarComprador(){
-        ArrayList<Persona> usuarios = Comprador.readFile("compradores.txt");
-        Scanner sc = new Scanner(System.in);
+    public static int registrarComprador(ArrayList<Persona> usuarios, Scanner sc){
+        boolean validacion = false;
         System.out.println("\nPOR FAVOR, COMPLETE LOS DATOS PARA REGISTRAR AL NUEVO COMPRADOR \n");
         System.out.println("Ingrese los nombres: ");
         String nombresU = sc.nextLine();
@@ -80,22 +43,21 @@ public class Comprador extends Persona{
         String apellidosU = sc.nextLine();
         System.out.println("Ingrese la organización: ");
         String organizacionU = sc.nextLine();
-        System.out.println("Ingrese el correo electrónico: ");
-        String correo = sc.nextLine();
-        
-        for (Persona p: usuarios){
-            if (correo.equals(p.correo_electronico)){
-                System.out.println("NO PUEDE REGISTRAR ESTE CORREO PORQUE YA EXISTE EN LA BASE DE DATOS");
-                return;
-            }
-        }
-        
+        String correoU;
+        do{
+            System.out.println("Ingrese el correo electrónico: ");
+            correoU = sc.nextLine();
+            validacion = Utilitaria.validarCorreo(usuarios, correoU);
+        }while(validacion == false);
         System.out.println("Ingrese la clave: ");
         String claveU = sc.nextLine();
-        
-        Comprador pNuevo = new Comprador(nombresU, apellidosU, organizacionU, correo, Utilitaria.claveHash(claveU));
-        pNuevo.saveFile("compradores.txt");
+        Persona pNuevo = new Comprador(nombresU, apellidosU, organizacionU, correoU, Utilitaria.claveHash(claveU));
+        usuarios.add(pNuevo);
+        pNuevo.saveFile("usuarios.txt");
+        System.out.println("Comprador registrado con éxito");
+        return -1;
     }
+    
     public static Comprador obtenerComprador() {
     Scanner sc = new Scanner(System.in);
     System.out.println("Ingrese su información de comprador:");
@@ -118,116 +80,180 @@ public class Comprador extends Persona{
     return new Comprador(nombres, apellidos, organizacion, correo, clave);
 }
     
-    public static ArrayList<Vehiculo> busquedaDeVehiculo(){
+    public static ArrayList<Vehiculo> busquedaDeVehiculo(ArrayList<Vehiculo> vehiculos, Scanner sc){
         ArrayList<Vehiculo> vehiculosPorBusqueda = new ArrayList<>();
-        Scanner scanner = new Scanner(System.in);
         System.out.println("Ingrese los criterios de búsqueda del vehiculo que desea:");
-        System.out.print("Ingrese el tipo de vehículo (opcional) : ");
-        String tipoVehiculo = scanner.nextLine();
+        System.out.println("Ingrese el tipo de vehículo : ");
+        System.out.println("1. Motocicleta");
+        System.out.println("2. Auto");
+        System.out.println("3. Camioneta");
+        System.out.println("4. Todos los tipos");
+        int tipo = sc.nextInt();
+        sc.nextLine();
         System.out.print("Ingrese el Recorrido mínimo (opcional) : ");
-        String recoMinString = scanner.nextLine();
+        String recoMinString = sc.nextLine();
         System.out.print("Ingrese el Recorrido máximo (opcional) : ");
-        String recoMaxString = scanner.nextLine();
+        String recoMaxString = sc.nextLine();
         System.out.print("Ingrese el Año mínimo (opcional) : ");
-        String añoMinString = scanner.nextLine();
+        String añoMinString = sc.nextLine();
         System.out.print("Ingrese el Año máximo (opcional) : ");
-        String añoMaxString = scanner.nextLine();
+        String añoMaxString = sc.nextLine();
         System.out.print("Ingrese el Precio mínimo (opcional) : ");
-        String precMinString = scanner.nextLine();
+        String precMinString = sc.nextLine();
         System.out.print("Ingrese el Precio máximo (opcional) : ");
-        String precMaxString = scanner.nextLine();
+        String precMaxString = sc.nextLine();
         
-        double recoMin = Double.MIN_VALUE;
-        if (!recoMinString.isEmpty()) {
+        String tipoVehiculo = null;
+        switch(tipo){
+            case 1 -> tipoVehiculo = "MOTOCICLETA";
+            case 2 -> tipoVehiculo = "CAMIONETA";
+            case 3 -> tipoVehiculo = "AUTO";
+        }
+        
+        double recoMin = 0;
+        if (!recoMinString.equals("")) {
             recoMin = Double.parseDouble(recoMinString);
         }
 
         double recoMax = Double.MAX_VALUE;
-        if (!recoMaxString.isEmpty()) {
+        if (!recoMaxString.equals("")) {
             recoMax = Double.parseDouble(recoMaxString);
         }
 
-        int añoMin = Integer.MIN_VALUE;
-        if (!añoMinString.isEmpty()) {
+        int añoMin = 1900;
+        if (!añoMinString.equals("")) {
             añoMin = Integer.parseInt(añoMinString);
         }
 
-        int añoMax = Integer.MAX_VALUE;
-        if (!añoMaxString.isEmpty()) {
+        int añoMax = LocalDate.now().getYear() + 1;
+        if (!añoMaxString.equals("")) {
             añoMax = Integer.parseInt(añoMaxString);
         }
 
-        double precMin = Double.MIN_VALUE;
-        if (!precMinString.isEmpty()) {
+        double precMin = 0;
+        if (!precMinString.equals("")) {
             precMin = Double.parseDouble(precMinString);
         }
 
         double precMax = Double.MAX_VALUE;
-        if (!precMaxString.isEmpty()) {
+        if (!precMaxString.equals("")) {
             precMax = Double.parseDouble(precMaxString);
         }
         
-        ArrayList<Auto> autos = Auto.readFileA("autos.txt");
-        for (Auto auto : autos) {
-            if (encontrarVehiculos(tipoVehiculo, recoMin, recoMax, añoMin, añoMax, precMin, precMax, autos)) {
-                vehiculosPorBusqueda.add(auto);
-            }
-        }
-
-        ArrayList<Camioneta> camionetas = Camioneta.readFileC("camionetas.txt");
-        for (Camioneta camioneta : camionetas) {
-            if (encontrarVehiculos(tipoVehiculo, recoMin, recoMax, añoMin, añoMax, precMin, precMax, camionetas)) {
-                vehiculosPorBusqueda.add(camioneta);
-            }
-        }
-
-        ArrayList<Moto> motos = Moto.readFileM("motos.txt");
-        for (Moto moto : motos) {
-            if (encontrarVehiculos(tipoVehiculo, recoMin, recoMax, añoMin, añoMax, precMin, precMax, motos)) {
-                vehiculosPorBusqueda.add(moto);
-            }
+        for(Vehiculo v : vehiculos){
+            if(tipoVehiculo == null && encontrarVehiculos(v, recoMin, recoMax, añoMin, añoMax, precMin, precMax))
+                vehiculosPorBusqueda.add(v);
+            else if(TipoVehiculo.CAMIONETA.equals(TipoVehiculo.valueOf(tipoVehiculo)) && encontrarVehiculos(v, recoMin, recoMax, añoMin, añoMax, precMin, precMax))
+                vehiculosPorBusqueda.add(v);
+            else if(TipoVehiculo.AUTO.equals(TipoVehiculo.valueOf(tipoVehiculo)) && encontrarVehiculos(v, recoMin, recoMax, añoMin, añoMax, precMin, precMax))
+                vehiculosPorBusqueda.add(v);
+            else if(TipoVehiculo.MOTOCICLETA.equals(TipoVehiculo.valueOf(tipoVehiculo)) && encontrarVehiculos(v, recoMin, recoMax, añoMin, añoMax, precMin, precMax))
+                vehiculosPorBusqueda.add(v);
         }
     return vehiculosPorBusqueda;
     }
 
-    public static boolean encontrarVehiculos(String tipoVehiculo,double recoMin,double recoMax,int añoMin,int añoMax,double precMin,double precMax, ArrayList<? extends Vehiculo> vehiculos){
-        boolean valor = false;
-        for (Vehiculo vehiculo : vehiculos) {
-        boolean reco = vehiculo.getRecorrido() >= recoMin && vehiculo.getRecorrido() <= recoMax;
-        boolean años = vehiculo.getAño() >= añoMin && vehiculo.getAño() <= añoMax;
-        boolean prec = vehiculo.getPrecio() >= precMin && vehiculo.getPrecio() <= precMax;
-        boolean esTipoVehiculo = tipoVehiculo == null || tipoVehiculo.isEmpty()
-                || (tipoVehiculo.equalsIgnoreCase("auto") && vehiculo instanceof Auto)
-                || (tipoVehiculo.equalsIgnoreCase("camioneta") && vehiculo instanceof Camioneta)
-                || (tipoVehiculo.equalsIgnoreCase("moto") && vehiculo instanceof Moto);
-
-        valor = reco && años && prec && esTipoVehiculo;
-        }
-    return valor;
-
-}    
+    public static boolean encontrarVehiculos(Vehiculo vehiculo,double recoMin,double recoMax,int añoMin,int añoMax,double precMin,double precMax){
+        boolean recorrido = Utilitaria.enRango(vehiculo.recorrido, recoMin, recoMax);
+        boolean años = Utilitaria.enRango(vehiculo.año, añoMin, añoMax);
+        boolean precio = Utilitaria.enRango(vehiculo.precio, precMin, precMax);
+        return recorrido && años && precio;
+    }
     
-    public static void ofertarPorVehiculo() {
-    ArrayList<Vehiculo> vehiculosEncontrados = busquedaDeVehiculo();
-    Scanner sc = new Scanner(System.in);
-    for (Vehiculo v : vehiculosEncontrados) {
-        v.mostrarDetallesVehiculo(v);
-        System.out.println("Desea realizar una oferta por este vehículo? (S/N):");
-        String respuesta = sc.nextLine();
-
-        if (respuesta.equalsIgnoreCase("S")) {
-            System.out.println("Ingrese el precio ofertado:");
-            double precioOferta = sc.nextDouble();
-            sc.nextLine();
-            Comprador comprador = obtenerComprador();
-            Oferta oferta = new Oferta(v,comprador, precioOferta);
-            v.agregarOferta(oferta);
-            System.out.println("Su oferta ha sido realizada correctamente!");
-        } else if (respuesta.equalsIgnoreCase("N")) {
-            System.out.println("No se realizará una oferta por este vehículo.");
-        } else {
-            System.out.println("Respuesta no aceptada.");
+    public static void ofertarPorVehiculo(ArrayList<Vehiculo> vehiculos, ArrayList<Oferta> ofertas, Persona p, Scanner sc) {
+        ArrayList<Vehiculo> vehiculosEncontrados = busquedaDeVehiculo(vehiculos, sc);
+        if(!vehiculosEncontrados.isEmpty()){
+            Vehiculo vehiculo = null;
+            ListIterator<Vehiculo> iterator = vehiculosEncontrados.listIterator();
+            int contador = 0;
+            int opc;
+            while(iterator.hasNext()){
+                if(!iterator.hasPrevious()){
+                    vehiculo = iterator.next();
+                    contador++;
+                    if(!iterator.hasNext()){
+                        vehiculo.mostrarDetallesVehiculo();
+                        System.out.println("1. Hacer Oferta");
+                        opc = sc.nextInt();
+                        break;
+                    }else{
+                        do{
+                            vehiculo.mostrarDetallesVehiculo();
+                            System.out.println("1. Siguiente Vehículo");
+                            System.out.println("2. Hacer Oferta");
+                            opc = sc.nextInt();
+                        }while(opc < 1 || opc > 2);
+                        if(opc == 2)
+                            break;
+                    }
+                }else{
+                    vehiculo = iterator.next();
+                    contador++;
+                    if(iterator.hasNext()){
+                        do{
+                            vehiculo.mostrarDetallesVehiculo();
+                            System.out.println("1. Siguiente Vehículo");
+                            System.out.println("2. Anterior Vehículo");
+                            System.out.println("3. Hacer Oferta");
+                            opc = sc.nextInt();
+                        }while(opc < 1 || opc > 3);
+                        if(opc == 2){
+                            iterator.previous();
+                            iterator.previous();
+                            contador -= 2;
+                        }else if(opc == 3)
+                            break;
+                    }else{
+                        do{
+                            vehiculo.mostrarDetallesVehiculo();
+                            System.out.println("1. Anterior Vehículo");
+                            System.out.println("2. Hacer Oferta");
+                            opc = sc.nextInt();
+                        }while(opc < 1 || opc > 2);
+                        if(opc == 1){
+                            iterator.previous();
+                            iterator.previous();
+                            contador -= 2;
+                        }else
+                            break;
+                    } 
+                }
+            }
+            if(vehiculo != null){
+                System.out.println("Ingrese el precio ofertado:");
+                double precioOferta = sc.nextDouble();
+                sc.nextLine();
+                Oferta oferta = new Oferta(vehiculo, (Comprador) p, precioOferta);
+                vehiculo.agregarOferta(oferta);
+                ofertas.add(oferta);
+                ((Comprador) p).agregarOferta(oferta);
+                oferta.saveFile("ofertas.txt", true);
+                System.out.println("Su oferta ha sido realizada correctamente!");
+                System.out.println("");
+            }
+        }else
+            System.out.println("Ningún vehículo coincide con sus criterios de búsqueda");
+    }
+    
+    public static Persona comprobarCyC(ArrayList<Persona> usuarios, Scanner sc){
+        System.out.println("\nPOR FAVOR, COMPROBEMOS SUS DATOS");
+        System.out.println("Ingrese su correo electronico: ");
+        String correoE = sc.nextLine();
+        System.out.println("Ingrese su contraseña:");
+        String contraseñaE = sc.nextLine();
+        for (Persona p: usuarios){
+            if (p instanceof Comprador && correoE.equals(p.correo) && Utilitaria.claveHash(contraseñaE).equals(p.clave)){
+                System.out.println("Correo y clave válidos");
+                System.out.println("");
+                return p;
+            }
         }
-    }    
- }
+        System.out.println("Correo o clave incorrectos");
+        System.out.println("");
+        return null;
+    }
+    
+    public void agregarOferta(Oferta o){
+        this.ofertas.add(o);
+    }
 }

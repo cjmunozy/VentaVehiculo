@@ -1,0 +1,1 @@
+GCA-0001|Ford|F-150 Raptor|Ecoboost|2023|100.0|Rojo|Diesel|75000.0|CAMIONETA|6|Manual|4x4

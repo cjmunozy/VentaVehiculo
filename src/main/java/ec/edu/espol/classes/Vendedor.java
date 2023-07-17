@@ -1,5 +1,6 @@
 
 package ec.edu.espol.classes;
+import ec.edu.espol.correo.Buzon;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -9,40 +10,11 @@ import java.util.Scanner;
 
 
 public class Vendedor extends Persona{
-    private ArrayList<Vehiculo> vehiculos;
     
-    public Vendedor(String nombres, String apellidos, String organizacion, String correo_electronico, String clave, ArrayList<Vehiculo> vehiculos) {
-        super(nombres, apellidos, organizacion, correo_electronico, clave);
-        this.vehiculos = vehiculos;
+    public Vendedor(String nombres, String apellidos, String organizacion, String correo, String clave) {
+        super(nombres, apellidos, organizacion, correo, clave, TipoPersona.VENDEDOR);
     }
 
-    public Vendedor(String nombres, String apellidos, String organizacion, String correo_electronico, String clave) {
-        super(nombres, apellidos, organizacion, correo_electronico, clave);
-    }
-    
-    
-    public void saveFile(String nomFile){
-        try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile), true)))
-        {
-           pw.println(this.nombres+"|"+this.apellidos+"|"+this.organizacion+"|"+this.correo_electronico+"|"+this.clave); 
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-    
-
-    public static void saveFile(ArrayList<Persona> vendedores, String nomFile){
-        try(PrintWriter pw = new PrintWriter(new FileOutputStream(new File(nomFile))))
-        {
-            for (Persona v: vendedores)
-                pw.println(v.nombres+"|"+v.apellidos+"|"+v.organizacion+"|"+v.correo_electronico+"|"+v.clave); 
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-    
     public static ArrayList<Persona> readFile(String nomFile){
         ArrayList<Persona> vendedores = new ArrayList<>();
         try(Scanner sc = new Scanner(new File(nomFile)))
@@ -61,9 +33,8 @@ public class Vendedor extends Persona{
         return vendedores;
     }
     
-    public static void registrarVendedor(){
-        ArrayList<Persona> usuarios = Vendedor.readFile("vendedores.txt");
-        Scanner sc = new Scanner(System.in);
+    public static int registrarVendedor(ArrayList<Persona> usuarios, Scanner sc){
+        boolean validacion = false;
         System.out.println("\nPOR FAVOR, COMPLETE LOS DATOS PARA REGISTRAR AL NUEVO VENDEDOR \n");
         System.out.println("Ingrese los nombres: ");
         String nombresU = sc.nextLine();
@@ -71,100 +42,87 @@ public class Vendedor extends Persona{
         String apellidosU = sc.nextLine();
         System.out.println("Ingrese la organización: ");
         String organizacionU = sc.nextLine();
-        System.out.println("Ingrese el correo electrónico: ");
-        String correo = sc.nextLine();
-        
-        for (Persona p: usuarios){
-            if (correo.equals(p.correo_electronico)){
-                System.out.println("NO PUEDE REGISTRAR ESTE CORREO PORQUE YA EXISTE EN LA BASE DE DATOS");
-                return;
-            }
-        }
-        
+        String correoU;
+        do{
+            System.out.println("Ingrese el correo electrónico: ");
+            correoU = sc.nextLine();
+            validacion = Utilitaria.validarCorreo(usuarios, correoU);
+        }while(validacion == false);
         System.out.println("Ingrese la clave:");
         String claveU = sc.nextLine();
-        
-        Vendedor pNuevo = new Vendedor(nombresU, apellidosU, organizacionU, correo, Utilitaria.claveHash(claveU));
-        pNuevo.saveFile("vendedores.txt");
+        Persona pNuevo = new Vendedor(nombresU, apellidosU, organizacionU, correoU, Utilitaria.claveHash(claveU));
+        usuarios.add(pNuevo);
+        pNuevo.saveFile("usuarios.txt");
+        System.out.println("Vendedor registrado con éxito");
+        return -1;
     }
     
-    public static void ingresarNuevoVehiculo(){
-        ArrayList<Vehiculo> vehiculos = Vehiculo.readFile("motocicletas.txt");
-        ArrayList<Auto> autos = Auto.readFileA("autos.txt");
-        ArrayList<Camioneta> camionetas = Camioneta.readFileC("camionetas.txt");
-        
-        if (Vendedor.comprobarCyC()){
-            Scanner sc = new Scanner(System.in);
+    public static void ingresarNuevoVehiculo(ArrayList<Vehiculo> vehiculos, Scanner sc){
+        int numT;
+        Vehiculo v;
+        do{
             System.out.println("\n--- TIPO DE VEHICULOS DISPONIBLES PARA REGISTRAR ---");
             System.out.println("1. Motocicleta");
             System.out.println("2. Auto");
             System.out.println("3. Camioneta");
             System.out.println("Ingrese el número del tipo de vehículo que desea registrar: ");
-            int numT = sc.nextInt();
+            numT = sc.nextInt();
+            sc.nextLine();
             switch(numT){
                 case 1:
-                    Vehiculo moto = Vehiculo.pedirDatosVehiculo();
-                    for (Vehiculo v: vehiculos){
-                        if (moto.placa.equals(v.placa)){
-                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
-                            return;
-                        }
-                    }
-                    moto.saveFile("motocicletas.txt");
+                    v = Vehiculo.pedirDatosVehiculo(sc);
+                    if(Utilitaria.validarPlaca(vehiculos, v.placa)){
+                        vehiculos.add(v);
+                        v.saveFile("vehiculos.txt", true);
+                    }else
+                        numT = -1;
                     break;
                 case 2:
-                    Auto auto = Auto.pedirDatosAuto();
-                    for (Auto a: autos){
-                        if (auto.placa.equals(a.placa)){
-                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
-                            return;
-                        }
-                    }
-                    auto.saveFileA("autos.txt");
+                    v = Auto.pedirDatosAuto(sc);
+                    if(Utilitaria.validarPlaca(vehiculos, v.placa)){
+                        vehiculos.add(v);
+                        v.saveFile("vehiculos.txt", true);
+                    }else
+                        numT = -1;
                     break;
                 case 3:
-                    Camioneta camioneta = Camioneta.pedirDatosCamioneta();
-                    for (Camioneta c: camionetas){
-                        if (camioneta.placa.equals(c.placa)){
-                            System.out.println("NO PUEDE REGISTRAR ESTE VEHICULO PORQUE LA PLACA YA EXISTE EN LA BASE DE DATOS");
-                            return;
-                        }
-                    }
-                    camioneta.saveFileC("camionetas.txt");
+                    v = Camioneta.pedirDatosCamioneta(sc);
+                    if(Utilitaria.validarPlaca(vehiculos, v.placa)){
+                        vehiculos.add(v);
+                        v.saveFile("vehiculos.txt", true);
+                    }else
+                        numT = -1;
                     break;
             }
-            
-        }
+        }while(numT < 1 || numT > 3);
+        System.out.println("Vehículo registrado con éxito");
     } 
     
 
     @Override
     public String toString(){
-        return "Nombres:"+this.nombres+", Apellidos: "+this.apellidos+", Organización: "+this.organizacion+", Correo: "+this.correo_electronico+", Clave: "+this.clave;
+        return "Nombres:"+this.nombres+", Apellidos: "+this.apellidos+", Organización: "+this.organizacion+", Correo: "+this.correo+", Clave: "+this.clave;
     }
 //    
     
-    public static boolean comprobarCyC(){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("POR FAVOR, COMPROBEMOS SUS DATOS");
+    public static boolean comprobarCyC(ArrayList<Persona> usuarios, Scanner sc){
+        System.out.println("\nPOR FAVOR, COMPROBEMOS SUS DATOS");
         System.out.println("Ingrese su correo electronico: ");
         String correoE = sc.nextLine();
         System.out.println("Ingrese su contraseña:");
         String contraseñaE = sc.nextLine();
-        
-        ArrayList<Persona> usuarios = Vendedor.readFile("vendedores.txt");
         for (Persona p: usuarios){
-            if (correoE.equals(p.correo_electronico) && Utilitaria.claveHash(contraseñaE).equals(p.clave)){
-                System.out.println("Correo y clave validada");
+            if(p instanceof Vendedor && correoE.equals(p.correo) && Utilitaria.claveHash(contraseñaE).equals(p.clave)){
+                System.out.println("Correo y clave válidos");
+                System.out.println("");
                 return true;
             }
-            
-            else
-                System.out.println("Correo o clave incorrectos");
         }
-        
+        System.out.println("Correo o clave incorrectos");
+        System.out.println("");
         return false;
     }
+    
     public Vehiculo buscarVehiculoPorPlaca(String placa, ArrayList<Vehiculo> vehiculos) {
     for (Vehiculo vehiculo : vehiculos) {
         if (vehiculo.getPlaca().equals(placa)) {
@@ -173,40 +131,24 @@ public class Vendedor extends Persona{
     }
     return null;
 }
-    public static void revisarOfertas() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Ingrese la placa del vehículo: ");
-        String placa = scanner.nextLine();
-        ArrayList<Vehiculo> vehiculos = obtenerListaVehiculos();
-        for (Vehiculo v : vehiculos) {
-            if (v.placa.equals(placa)) 
-                v.mostrarOferta(v);
+    public static void revisarOfertas(ArrayList<Persona> usuarios, ArrayList<Oferta> ofertas, ArrayList<Vehiculo> vehiculos, Scanner sc) {
+        System.out.println("Ingrese la placa del vehículo deseado para consultar qué ofertas se han realizado: ");
+        String placa = sc.nextLine();
+        ArrayList<Vehiculo> copia = (ArrayList<Vehiculo>) vehiculos.clone();
+        for (Vehiculo v : copia) {
+            if (placa.equals(v.placa)) 
+                v.mostrarOfertas(usuarios, ofertas, vehiculos, sc);
         }
-    }
-    public static void enviarCorreo(String destinatario, String asunto, String cuerpo) { 
-        
-    }
-    
-    
-    public static void aceptarOferta(Oferta oferta) {
-        Vehiculo vehiculo = oferta.getTipoVehiculo();
-        Comprador comprador = oferta.getComprador();
-        vehiculo.eliminarVehiculo(vehiculo);
-        enviarCorreo(comprador.getCorreo(), "Oferta Aceptada","");
-}
-    static ArrayList<Vehiculo> obtenerListaVehiculos() {
-    ArrayList<Vehiculo> vehiculos = new ArrayList<>();
-    try (Scanner scanner = new Scanner(new File("vehiculos.txt"))) {
-        while (scanner.hasNextLine()) {
-            String linea = scanner.nextLine();
-            String[] tokens = linea.split("\\|");
-            Vehiculo vehiculo = new Vehiculo(tokens[0], tokens[1], tokens[2], tokens[3], Integer.parseInt(tokens[4]), Double.parseDouble(tokens[5]), tokens[6], tokens[7], Double.parseDouble(tokens[8]));
-            vehiculos.add(vehiculo);
-        }
-    } catch (FileNotFoundException e) {
-        System.out.println("Error al leer el archivo de vehículos: " + e.getMessage());
     }
 
-    return vehiculos;
-}
+    public static void aceptarOferta(ArrayList<Persona> usuarios, ArrayList<Oferta> ofertas, ArrayList<Vehiculo> vehiculos, Oferta oferta) {
+        Vehiculo vehiculo = oferta.getVehiculo();
+        Comprador comprador = oferta.getComprador();
+        Buzon b = new Buzon();
+        b.enviarCorreo(oferta);
+        ArrayList<Vehiculo> listaActualizadaVehiculos = Vehiculo.eliminarVehiculo(vehiculos, vehiculo);
+        Vehiculo.saveFile(listaActualizadaVehiculos, "vehiculos.txt");
+        ArrayList<Oferta> listaActualizadaOfertas = Oferta.eliminarOfertas(usuarios, ofertas, vehiculo);
+        Oferta.saveFile(ofertas, "ofertas.txt");
+    }
 }
